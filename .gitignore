@@ -1,0 +1,8 @@
+.vscode/*
+*.exe
+*.out
+*.json
+*.[ao]
+*.gch
+*/main
+*/build
