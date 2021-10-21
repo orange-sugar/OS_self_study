@@ -6,3 +6,5 @@
 *.gch
 */main
 */build
+*/**/build
+*/*.output
