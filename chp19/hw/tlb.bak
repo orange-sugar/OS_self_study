@@ -1,0 +1,41 @@
+#include <bits/types/struct_timeval.h>
+#define _GNU_SOURCE  
+#include <stdio.h>
+#include <stdlib.h>
+#include <sched.h>
+#include <sys/time.h>
+
+#define PAGESIZE 4096
+// #define NUMPAGES 500
+// #define NUM_OF_MEASURE 900
+// #define jump 1024
+
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        perror("Usage: -numPage -numMeasure\n");
+        exit(1);
+    }
+    int numPages = atoi(argv[1]);
+    int numMeasures = atoi(argv[2]);
+    int jump = PAGESIZE / sizeof(int);
+    int *a = (int *)malloc(numPages * jump * sizeof(int));
+    unsigned long mask = 1;
+    if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
+        perror("sched_setaffinity");
+    }
+    int i,j;
+    int long result;
+    struct timeval begin, end;
+    for (i = 0; i < numPages*jump; i+=jump) a[i] = 0;
+    gettimeofday(&begin, NULL);
+    for (j = 0; j < numMeasures; j++)
+        for (i = 0; i < numPages * jump; i += jump)
+            a[i] += 1;
+    gettimeofday(&end, NULL);
+    result = end.tv_usec - begin.tv_usec;
+    printf("Total time cost:%ld\n", result);
+    printf("Time cost of every access:%lf\n", (double)result/numMeasures/numPages);
+    printf("Number of pages:%d\n", i/jump);
+    for (i = 0; i < numPages*jump; i+=jump) a[i] = 0;
+    return 0;
+}
